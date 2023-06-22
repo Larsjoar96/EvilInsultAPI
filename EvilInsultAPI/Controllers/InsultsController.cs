@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EvilInsultAPI.Models;
 using EvilInsultAPI.Models.Domain;
+using EvilInsultAPI.Services.InsultService;
+using AutoMapper;
+using EvilInsultAPI.Models.DTOs.InsultDTOs;
 
 namespace EvilInsultAPI.Controllers
 {
@@ -15,21 +18,22 @@ namespace EvilInsultAPI.Controllers
     public class InsultsController : ControllerBase
     {
         private readonly EvilDbContext _context;
+        private readonly IInsultService _insultService;
+        private readonly IMapper _mapper;
 
-        public InsultsController(EvilDbContext context)
+        public InsultsController(EvilDbContext context, IInsultService insultService, IMapper mapper)
         {
             _context = context;
+            _insultService = insultService;
+            _mapper = mapper;
+
         }
 
         // GET: api/Insults
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Insult>>> GetInsults()
+        public async Task<ActionResult<IEnumerable<InsultGeneralDTO>>> GetInsults()
         {
-          if (_context.Insults == null)
-          {
-              return NotFound();
-          }
-            return await _context.Insults.ToListAsync();
+            return Ok(_mapper.Map<List<InsultGeneralDTO>>(await _insultService.GetAllAsync()));
         }
 
         // GET: api/Insults/5

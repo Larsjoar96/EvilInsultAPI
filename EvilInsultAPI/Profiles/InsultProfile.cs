@@ -8,8 +8,8 @@ namespace EvilInsultAPI.Profiles
     {
         public InsultProfile() 
         {
-            CreateMap<InsultGeneralDTO, Insult>();
-            CreateMap<InsultPostDTO, Insult>();
+            CreateMap<Insult, InsultGeneralDTO>();
+            CreateMap<Insult, InsultPostDTO>();
         }
     }
 }

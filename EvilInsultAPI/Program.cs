@@ -37,7 +37,6 @@ namespace AptivioBackend
 
             app.UseAuthorization();
 
-
             app.MapControllers();
 
             app.Run();
