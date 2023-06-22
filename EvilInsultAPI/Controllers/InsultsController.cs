@@ -19,13 +19,11 @@ namespace EvilInsultAPI.Controllers
     [ApiController]
     public class InsultsController : ControllerBase
     {
-        private readonly EvilDbContext _context;
         private readonly IInsultService _insultService;
         private readonly IMapper _mapper;
 
         public InsultsController(EvilDbContext context, IInsultService insultService, IMapper mapper)
         {
-            _context = context;
             _insultService = insultService;
             _mapper = mapper;
 
@@ -49,58 +47,37 @@ namespace EvilInsultAPI.Controllers
             catch (EntityNotFoundExeption ex)
             {
                 return NotFound(
-                    new ProblemDetails()
-                    {
-                        Detail = ex.Message,
-                        Status = ((int)HttpStatusCode.NotFound)
-                    }
-                );
+                    new ProblemDetails(){ Detail = ex.Message, Status = ((int)HttpStatusCode.NotFound) });
             }
         }
 
         // PUT: api/Insults/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutInsult(int id, Insult insult)
+        public async Task<IActionResult> PutInsult(int id, InsultPutDTO insult)
         {
             if (id != insult.Id)
             {
-                return BadRequest();
+                return BadRequest("Insult with that Id does not exist");
             }
-
-            _context.Entry(insult).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _insultService.UpdateAsync(_mapper.Map<Insult>(insult));
+                return NoContent();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (EntityNotFoundExeption ex)
             {
-                if (!InsultExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound(new ProblemDetails() { Detail = ex.Message, Status = ((int)HttpStatusCode.NotFound) });
             }
-
-            return NoContent();
         }
 
         // POST: api/Insults
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Insult>> PostInsult(Insult insult)
+        public async Task<ActionResult<Insult>> PostInsult(InsultPostDTO insultDTO)
         {
-          if (_context.Insults == null)
-          {
-              return Problem("Entity set 'EvilDbContext.Insults'  is null.");
-          }
-            _context.Insults.Add(insult);
-            await _context.SaveChangesAsync();
-
+            Insult insult = _mapper.Map<Insult>(insultDTO);
+            await _insultService.AddAsync(insult);
             return CreatedAtAction("GetInsult", new { id = insult.Id }, insult);
         }
 
@@ -108,25 +85,15 @@ namespace EvilInsultAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteInsult(int id)
         {
-            if (_context.Insults == null)
+            try
             {
-                return NotFound();
+                await _insultService.DeleteByIdAsync(id);
+                return NoContent();
             }
-            var insult = await _context.Insults.FindAsync(id);
-            if (insult == null)
+            catch (EntityNotFoundExeption ex)
             {
-                return NotFound();
+                return NotFound(new ProblemDetails() { Detail = ex.Message, Status = ((int)HttpStatusCode.NotFound) });
             }
-
-            _context.Insults.Remove(insult);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool InsultExists(int id)
-        {
-            return (_context.Insults?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

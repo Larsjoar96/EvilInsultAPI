@@ -17,7 +17,7 @@ namespace EvilInsultAPI.Services.InsultService
         {
             if (obj.Language != "en" && obj.Language != "es" && obj.Language != "de")
             {
-                throw new InvalidLanguageExeption("Invalid language please use en, es or de");
+                throw new BadHttpRequestException("Invalid language please use en, es or de");
             } 
             await _context.Insults.AddAsync(obj);
             await _context.SaveChangesAsync();
@@ -54,6 +54,10 @@ namespace EvilInsultAPI.Services.InsultService
             if (!await InsultExists(obj.Id))
             {
                 throw new EntityNotFoundExeption("No Insult with id: " + obj.Id);
+            }
+            if (obj.Language != "en" && obj.Language != "es" && obj.Language != "de")
+            {
+                throw new BadHttpRequestException("Invalid language please use en, es or de");
             }
             _context.Entry(obj).State = EntityState.Modified;
             await _context.SaveChangesAsync();

@@ -9,7 +9,8 @@ namespace EvilInsultAPI.Profiles
         public InsultProfile() 
         {
             CreateMap<Insult, InsultGeneralDTO>();
-            CreateMap<Insult, InsultPostDTO>();
+            CreateMap<InsultPostDTO, Insult> ();
+            CreateMap<InsultPutDTO, Insult> ();
         }
     }
 }
