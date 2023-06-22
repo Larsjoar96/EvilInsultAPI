@@ -1,4 +1,5 @@
 using EvilInsultAPI.Models;
+using EvilInsultAPI.Services.InsultService;
 using Microsoft.EntityFrameworkCore;
 
 namespace AptivioBackend
@@ -17,7 +18,8 @@ namespace AptivioBackend
                 opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("EvilDb"))
             );
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddTransient<IInsultService, InsultService>();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
