@@ -35,19 +35,28 @@ namespace EvilInsultAPI.Services.InsultService
             await _context.SaveChangesAsync();
         }
 
-        public Task<ICollection<Insult>> GetAllAsync()
+        public async Task<ICollection<Insult>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Insults.ToListAsync();
         }
 
-        public Task<Insult> GetByIdAsync(int id)
+        public async Task<Insult> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            if (!await InsultExists(id)) 
+            {
+                throw new EntityNotFoundExeption("No Insult with id: " + id);
+            }
+            return await _context.Insults.Where(i => i.Id == id).FirstAsync();
         }
 
-        public Task UpdateAsync(Insult obj)
+        public async Task UpdateAsync(Insult obj)
         {
-            throw new NotImplementedException();
+            if (!await InsultExists(obj.Id))
+            {
+                throw new EntityNotFoundExeption("No Insult with id: " + obj.Id);
+            }
+            _context.Entry(obj).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
         private async Task<bool> InsultExists(int id)
         {
