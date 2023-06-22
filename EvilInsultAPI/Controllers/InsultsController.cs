@@ -35,6 +35,12 @@ namespace EvilInsultAPI.Controllers
         {
             return Ok(_mapper.Map<List<InsultGeneralDTO>>(await _insultService.GetAllAsync()));
         }
+        //GET: api/Insults/Language
+        [HttpGet("language")]
+        public async Task<ActionResult<IEnumerable<InsultGeneralDTO>>> GetInsultsInLanguage(string language) 
+        {
+            return Ok(_mapper.Map<List<InsultGeneralDTO>>(await _insultService.GetAllInsultsInLanguageAsync(language)));
+        }
 
         // GET: api/Insults/5
         [HttpGet("{id}")]

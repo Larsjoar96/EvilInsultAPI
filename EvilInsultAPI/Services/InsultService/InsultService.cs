@@ -15,7 +15,7 @@ namespace EvilInsultAPI.Services.InsultService
         }
         public async Task AddAsync(Insult obj)
         {
-            if (obj.Language != "en" && obj.Language != "es" && obj.Language != "de")
+            if (!ValidLanguage(obj.Language))
             {
                 throw new BadHttpRequestException("Invalid language please use en, es or de");
             } 
@@ -55,16 +55,33 @@ namespace EvilInsultAPI.Services.InsultService
             {
                 throw new EntityNotFoundExeption("No Insult with id: " + obj.Id);
             }
-            if (obj.Language != "en" && obj.Language != "es" && obj.Language != "de")
+            if (!ValidLanguage(obj.Language))
             {
                 throw new BadHttpRequestException("Invalid language please use en, es or de");
             }
             _context.Entry(obj).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
+        public async Task<ICollection<Insult>> GetAllInsultsInLanguageAsync(string language)
+        {
+            if (!ValidLanguage(language))
+            {
+                throw new BadHttpRequestException("Invalid language please use en, es or de");
+            }
+            return await _context.Insults.Where(i => i.Language == language).ToListAsync();
+        }
+        private bool ValidLanguage(string language) 
+        {
+            if (language != "en" && language != "es" && language != "de")
+            {
+                return false;
+            }
+            return true;
+        }
         private async Task<bool> InsultExists(int id)
         {
             return await _context.Insults.AnyAsync(u => (u.Id) == id);
         }
+        
     }
 }
