@@ -10,6 +10,8 @@ using EvilInsultAPI.Models.Domain;
 using EvilInsultAPI.Services.InsultService;
 using AutoMapper;
 using EvilInsultAPI.Models.DTOs.InsultDTOs;
+using EvilInsultAPI.Utils;
+using System.Net;
 
 namespace EvilInsultAPI.Controllers
 {
@@ -38,20 +40,22 @@ namespace EvilInsultAPI.Controllers
 
         // GET: api/Insults/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Insult>> GetInsult(int id)
+        public async Task<ActionResult<InsultGeneralDTO>> GetInsult(int id)
         {
-          if (_context.Insults == null)
-          {
-              return NotFound();
-          }
-            var insult = await _context.Insults.FindAsync(id);
-
-            if (insult == null)
+            try
             {
-                return NotFound();
+                return Ok(_mapper.Map<InsultGeneralDTO>(await _insultService.GetByIdAsync(id)));
             }
-
-            return insult;
+            catch (EntityNotFoundExeption ex)
+            {
+                return NotFound(
+                    new ProblemDetails()
+                    {
+                        Detail = ex.Message,
+                        Status = ((int)HttpStatusCode.NotFound)
+                    }
+                );
+            }
         }
 
         // PUT: api/Insults/5
